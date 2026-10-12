@@ -62,8 +62,44 @@ function occ(text, w, start, whole) {
   }
   return k;
 }
+var getCorp = function getCorp() {
+  try {
+    return localStorage.getItem('corpus') || '';
+  } catch (e) {
+    return '';
+  }
+};
+var setCorp = function setCorp(t) {
+  try {
+    localStorage.setItem('corpus', t);
+    return true;
+  } catch (e) {
+    return false;
+  }
+};
+var corpNote = function corpNote() {
+  var n = getCorp().length;
+  $('lst').textContent = n ? 'Đã học khoảng ' + Math.round(n / 1000) + ' nghìn ký tự văn bản mẫu.' : 'Chưa học văn bản mẫu nào.';
+};
 Office.onReady(function () {
   if (window.VNLEX) Speller.setLex(window.VNLEX);
+  Speller.learn(getCorp());
+  corpNote();
+  try {
+    $('sens').value = localStorage.getItem('sens') || '1';
+  } catch (e) {}
+  $('sens').onchange = function () {
+    try {
+      localStorage.setItem('sens', $('sens').value);
+    } catch (e) {}
+  };
+  $('learn').onclick = learnDoc;
+  $('forget').onclick = function () {
+    setCorp('');
+    Speller.resetLearn();
+    corpNote();
+    say('Đã xóa dữ liệu học. Hãy mở lại add-in để áp dụng đầy đủ.');
+  };
   $('dict').value = getDict();
   $('dict').onchange = function () {
     return setDict($('dict').value);
@@ -286,7 +322,8 @@ function _run() {
                     o = {
                       ignore: dictSet(),
                       skipNames: $('names').checked,
-                      grammar: $('gram').checked
+                      grammar: $('gram').checked,
+                      sens: parseInt($('sens').value, 10)
                     };
                     per = ps.items.map(function (p, i) {
                       return {
@@ -452,4 +489,62 @@ function _fix() {
     }, _callee9, null, [[1, 3]]);
   }));
   return _fix.apply(this, arguments);
+}
+function learnDoc() {
+  return _learnDoc.apply(this, arguments);
+}
+function _learnDoc() {
+  _learnDoc = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee1() {
+    var _t5;
+    return _regenerator().w(function (_context1) {
+      while (1) switch (_context1.p = _context1.n) {
+        case 0:
+          say('Đang học từ tài liệu...');
+          _context1.p = 1;
+          _context1.n = 2;
+          return Word.run(/*#__PURE__*/function () {
+            var _ref5 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee0(ctx) {
+              var b, txt, merged;
+              return _regenerator().w(function (_context0) {
+                while (1) switch (_context0.n) {
+                  case 0:
+                    b = ctx.document.body;
+                    b.load('text');
+                    _context0.n = 1;
+                    return ctx.sync();
+                  case 1:
+                    txt = b.text || '';
+                    merged = (getCorp() + '\n' + txt).slice(-800000);
+                    if (setCorp(merged)) {
+                      _context0.n = 2;
+                      break;
+                    }
+                    say('Bộ nhớ trình duyệt đầy, không lưu được.');
+                    return _context0.a(2);
+                  case 2:
+                    Speller.learn(txt);
+                    corpNote();
+                    say('Đã học xong. Bấm "Kiểm tra lại" để áp dụng.');
+                  case 3:
+                    return _context0.a(2);
+                }
+              }, _callee0);
+            }));
+            return function (_x1) {
+              return _ref5.apply(this, arguments);
+            };
+          }());
+        case 2:
+          _context1.n = 4;
+          break;
+        case 3:
+          _context1.p = 3;
+          _t5 = _context1.v;
+          say('Lỗi: ' + _t5.message);
+        case 4:
+          return _context1.a(2);
+      }
+    }, _callee1, null, [[1, 3]]);
+  }));
+  return _learnDoc.apply(this, arguments);
 }

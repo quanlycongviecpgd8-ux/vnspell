@@ -310,7 +310,12 @@ function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length)
     return Math.max(pr(a + ' ' + b), pr(alt(a) + ' ' + b), pr(a + ' ' + alt(b)), pr(alt(a) + ' ' + alt(b)));
   };
   function setUser(lines) {
-    USER = new Map();
+    for (var _i2 = 0, _arr = _toConsumableArray(USER); _i2 < _arr.length; _i2++) {
+      var _arr$_i = _slicedToArray(_arr[_i2], 2),
+        k = _arr$_i[0],
+        v = _arr$_i[1];
+      if (v === 8) USER.delete(k);
+    }
     var _iterator4 = _createForOfIteratorHelper(lines),
       _step4;
     try {
@@ -325,15 +330,16 @@ function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length)
       _iterator4.f();
     }
   }
+  var USERF = new Map();
   var freq = function freq(w) {
-    return LEX && (LEX.syl[w] || LEX.syl[alt(w)]) || 0;
+    return (LEX ? LEX.syl[w] || LEX.syl[alt(w)] || 0 : 0) + (USERF.get(w) || 0);
   };
   function cands(b) {
     var c1 = new Set([b]);
     var SW = [['c', 't'], ['t', 'c'], ['n', 'ng'], ['ng', 'n'], ['ch', 'nh'], ['nh', 'ch'], ['n', 'nh'], ['nh', 'n'], ['c', 'ch'], ['ch', 'c'], ['t', 'ch'], ['ng', 'nh'], ['nh', 'ng']];
     var PT = [['uo', 'ươ'], ['uo', 'uô'], ['ie', 'iê'], ['ye', 'yê'], ['uoi', 'ươi'], ['uou', 'ươu']];
-    for (var k = 0; k < 2; k++) for (var _i2 = 0, _arr = _toConsumableArray(c1); _i2 < _arr.length; _i2++) {
-      var s = _arr[_i2];
+    for (var k = 0; k < 2; k++) for (var _i3 = 0, _arr2 = _toConsumableArray(c1); _i3 < _arr2.length; _i3++) {
+      var s = _arr2[_i3];
       for (var i = 0; i < s.length; i++) if (FAM[s[i]]) {
         var _iterator5 = _createForOfIteratorHelper(FAM[s[i]]),
           _step5;
@@ -430,45 +436,80 @@ function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length)
     });
   }
   var ONS = [['s', 'x'], ['x', 's'], ['ch', 'tr'], ['tr', 'ch'], ['d', 'gi'], ['gi', 'd'], ['d', 'r'], ['r', 'd'], ['gi', 'r'], ['r', 'gi'], ['l', 'n'], ['n', 'l']];
-  function variants(b) {
+  var ONS2 = [['th', 'r'], ['r', 'th'], ['th', 't'], ['t', 'th'], ['kh', 'k'], ['k', 'kh'], ['n', 'nh'], ['nh', 'n'], ['ng', 'n'], ['n', 'ng'], ['b', 'v'], ['v', 'b'], ['d', 'đ'], ['đ', 'd'], ['g', 'gh'], ['c', 'k'], ['k', 'c'], ['ph', 'p'], ['qu', 'c'], ['c', 'qu']];
+  var CODA2 = [['c', 't'], ['t', 'c'], ['n', 'ng'], ['ng', 'n'], ['ch', 'nh'], ['nh', 'ch'], ['n', 'nh'], ['nh', 'n'], ['c', 'ch'], ['ch', 'c'], ['t', 'ch'], ['m', 'n'], ['n', 'm'], ['p', 'm'], ['m', 'p'], ['i', 'y'], ['u', 'o'], ['o', 'u']];
+  function variants(b, wide) {
     var base = new Set([b]);
+    if (wide) {
+      for (var _i4 = 0, _arr3 = _toConsumableArray(base); _i4 < _arr3.length; _i4++) {
+        var s = _arr3[_i4];
+        var _iterator9 = _createForOfIteratorHelper(ONS2),
+          _step9;
+        try {
+          for (_iterator9.s(); !(_step9 = _iterator9.n()).done;) {
+            var _step9$value = _slicedToArray(_step9.value, 2),
+              x = _step9$value[0],
+              y = _step9$value[1];
+            if (s.startsWith(x)) base.add(y + s.slice(x.length));
+          }
+        } catch (err) {
+          _iterator9.e(err);
+        } finally {
+          _iterator9.f();
+        }
+        var _iterator0 = _createForOfIteratorHelper(CODA2),
+          _step0;
+        try {
+          for (_iterator0.s(); !(_step0 = _iterator0.n()).done;) {
+            var _step0$value = _slicedToArray(_step0.value, 2),
+              _x2 = _step0$value[0],
+              _y2 = _step0$value[1];
+            if (s.endsWith(_x2)) base.add(s.slice(0, -_x2.length) + _y2);
+          }
+        } catch (err) {
+          _iterator0.e(err);
+        } finally {
+          _iterator0.f();
+        }
+      }
+    }
     for (var i = 0; i < b.length; i++) if (FAM[b[i]]) {
-      var _iterator9 = _createForOfIteratorHelper(FAM[b[i]]),
-        _step9;
+      var _iterator1 = _createForOfIteratorHelper(FAM[b[i]]),
+        _step1;
       try {
-        for (_iterator9.s(); !(_step9 = _iterator9.n()).done;) {
-          var c = _step9.value;
+        for (_iterator1.s(); !(_step1 = _iterator1.n()).done;) {
+          var c = _step1.value;
           base.add(b.slice(0, i) + c + b.slice(i + 1));
         }
       } catch (err) {
-        _iterator9.e(err);
+        _iterator1.e(err);
       } finally {
-        _iterator9.f();
+        _iterator1.f();
       }
     }
-    for (var _i3 = 0, _arr2 = _toConsumableArray(base); _i3 < _arr2.length; _i3++) {
-      var s = _arr2[_i3];
-      var _iterator0 = _createForOfIteratorHelper(ONS),
-        _step0;
+    for (var _i5 = 0, _arr4 = _toConsumableArray(base); _i5 < _arr4.length; _i5++) {
+      var _s2 = _arr4[_i5];
+      var _iterator10 = _createForOfIteratorHelper(ONS),
+        _step10;
       try {
-        for (_iterator0.s(); !(_step0 = _iterator0.n()).done;) {
-          var _step0$value = _slicedToArray(_step0.value, 2),
-            x = _step0$value[0],
-            y = _step0$value[1];
-          if (s.startsWith(x)) base.add(y + s.slice(x.length));
+        for (_iterator10.s(); !(_step10 = _iterator10.n()).done;) {
+          var _step10$value = _slicedToArray(_step10.value, 2),
+            _x3 = _step10$value[0],
+            _y3 = _step10$value[1];
+          if (_s2.startsWith(_x3)) base.add(_y3 + _s2.slice(_x3.length));
         }
       } catch (err) {
-        _iterator0.e(err);
+        _iterator10.e(err);
       } finally {
-        _iterator0.f();
+        _iterator10.f();
       }
     }
     var out = new Set();
-    var _iterator1 = _createForOfIteratorHelper(base),
-      _step1;
+    var _iterator11 = _createForOfIteratorHelper(base),
+      _step11;
     try {
-      for (_iterator1.s(); !(_step1 = _iterator1.n()).done;) {
-        var _c = _step1.value;
+      for (_iterator11.s(); !(_step11 = _iterator11.n()).done;) {
+        var _c = _step11.value;
         var p = parts(_c);
         if (!p) continue;
         for (var t = 0; t < 6; t++) {
@@ -478,9 +519,9 @@ function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length)
         }
       }
     } catch (err) {
-      _iterator1.e(err);
+      _iterator11.e(err);
     } finally {
-      _iterator1.f();
+      _iterator11.f();
     }
     return _toConsumableArray(out);
   }
@@ -696,16 +737,16 @@ function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length)
           N = toks[i + 2];
         if (P && adj(P, A) && pc(canon(P.lw), ca) >= 2 || N && adj(B, N) && pc(cb, canon(N.lw)) >= 2) continue;
         var best = null;
-        var _iterator10 = _createForOfIteratorHelper(variants(da.b)),
-          _step10;
+        var _iterator12 = _createForOfIteratorHelper(variants(da.b)),
+          _step12;
         try {
-          for (_iterator10.s(); !(_step10 = _iterator10.n()).done;) {
-            var a = _step10.value;
-            var _iterator11 = _createForOfIteratorHelper(variants(db.b)),
-              _step11;
+          for (_iterator12.s(); !(_step12 = _iterator12.n()).done;) {
+            var a = _step12.value;
+            var _iterator13 = _createForOfIteratorHelper(variants(db.b)),
+              _step13;
             try {
-              for (_iterator11.s(); !(_step11 = _iterator11.n()).done;) {
-                var _b = _step11.value;
+              for (_iterator13.s(); !(_step13 = _iterator13.n()).done;) {
+                var _b = _step13.value;
                 var ea = eqA(a, ca),
                   eb = eqA(_b, cb);
                 if (ea && eb) continue;
@@ -719,15 +760,15 @@ function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length)
                 };
               }
             } catch (err) {
-              _iterator11.e(err);
+              _iterator13.e(err);
             } finally {
-              _iterator11.f();
+              _iterator13.f();
             }
           }
         } catch (err) {
-          _iterator10.e(err);
+          _iterator12.e(err);
         } finally {
-          _iterator10.f();
+          _iterator12.f();
         }
         if (!best) continue;
         var sep = text.slice(A.end, B.s);
@@ -753,17 +794,116 @@ function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length)
         A.skip = B.skip = true;
       }
     }
+    if (LEX && o.sens) {
+      var lvl = o.sens;
+      var okTok2 = function okTok2(t) {
+        return t && !t.skip && t.w.length <= 7 && !/^[A-Z]{2,4}$/.test(t.w) && !(o.ignore && o.ignore.has(t.lw)) && !(o.skipNames && t.w[0] !== t.w[0].toLowerCase() && t.w.slice(1) === t.w.slice(1).toLowerCase() && text.slice(0, t.s).trim() && !/[.!?:;]\s*$/.test(text.slice(0, t.s)));
+      };
+      toks.forEach(function (t, i) {
+        if (!okTok2(t)) return;
+        var d = decompose(t.lw);
+        if (!d || !/[aăâeêioôơuưy]/.test(d.b)) return;
+        var pv = toks[i - 1],
+          nx = toks[i + 1];
+        var pC = adj(pv, t) ? canon(pv.lw) : null,
+          nC = adj(t, nx) ? canon(nx.lw) : null;
+        if (!pC && !nC) return;
+        var ct = canon(t.lw),
+          f = freq(ct);
+        var sup = function sup(w) {
+          return (pC ? pc(pC, w) : 0) + (nC ? pc(w, nC) : 0);
+        };
+        var S0 = sup(ct);
+        var best = null;
+        var narrow = new Set(variants(d.b, false));
+        var _iterator14 = _createForOfIteratorHelper(variants(d.b, true)),
+          _step14;
+        try {
+          for (_iterator14.s(); !(_step14 = _iterator14.n()).done;) {
+            var v = _step14.value;
+            if (eqA(v, ct)) continue;
+            var Sv = sup(v);
+            if (!Sv) continue;
+            if (!narrow.has(v) && (Sv < 2 || lvl === 1 && Sv < 3 && f > 10)) continue;
+            var sc = Sv * 2 + Math.log2(freq(v) + 1) * 0.3 - dist(v, ct) * 0.4;
+            if (!best || sc > best.sc) best = {
+              v: v,
+              Sv: Sv,
+              sc: sc
+            };
+          }
+        } catch (err) {
+          _iterator14.e(err);
+        } finally {
+          _iterator14.f();
+        }
+        var flag = false;
+        if (best) {
+          if (lvl === 1) flag = f <= 20 && best.Sv >= 2 * S0 + 1 || best.Sv >= 3 * S0 + 3;else flag = f <= 150 ? best.Sv >= 2 * S0 + 1 : best.Sv >= 3 * S0 + 3;
+        }
+        if (flag) {
+          var sg = [restore(t.w, styleAs(best.v, ct))];
+          rank(d.b, d.t, t.w, pC, nC, 4).forEach(function (x) {
+            if (sg.indexOf(x.w) < 0 && x.ctx) sg.push(x.w);
+          });
+          out.push({
+            w: t.w,
+            start: t.s,
+            type: 'ctx',
+            msg: 'Có thể sai theo ngữ cảnh',
+            sug: sg
+          });
+        } else if (lvl === 2 && f <= 3 && S0 === 0) {
+          var r = rank(d.b, d.t, t.w, pC, nC, 6).map(function (x) {
+            return x.w;
+          });
+          if (r.length) out.push({
+            w: t.w,
+            start: t.s,
+            type: 'unk',
+            msg: 'Từ hiếm gặp, nên kiểm tra lại',
+            sug: r
+          });
+        }
+      });
+    }
     if (o.grammar !== false) out.push.apply(out, _toConsumableArray(grammar(text)));
     return out;
   }
   var tokens = function tokens(str) {
     return str.normalize('NFC').toLowerCase().match(LETRE) || [];
   };
+  function learn(text) {
+    var ts = [],
+      re = new RegExp(LETRE.source, 'g');
+    var m;
+    while (m = re.exec(text)) ts.push({
+      s: m.index,
+      end: m.index + m[0].length,
+      c: canon(m[0].normalize('NFC').toLowerCase()),
+      ok: !!decompose(m[0].normalize('NFC').toLowerCase())
+    });
+    ts.forEach(function (t, i) {
+      if (!t.ok) return;
+      USERF.set(t.c, (USERF.get(t.c) || 0) + 1);
+      var n = ts[i + 1];
+      if (n && n.ok && /^\s+$/.test(text.slice(t.end, n.s))) {
+        var k = t.c + ' ' + n.c;
+        USER.set(k, Math.min((USER.get(k) || 0) + 4, 40));
+      }
+    });
+    return ts.length;
+  }
+  function resetLearn() {
+    USERF.clear();
+  }
   var api = {
     scan: scan,
     checkWord: checkWord,
     setLex: setLex,
     setUser: setUser,
+    learn: learn,
+    resetLearn: resetLearn,
     canon: canon,
     tokens: tokens,
     isLetter: isLetter

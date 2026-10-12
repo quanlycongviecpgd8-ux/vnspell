@@ -14,9 +14,11 @@ button{font:inherit;cursor:pointer;border:1px solid #bbb;background:#fff;border-
 </style></head><body>
 <h1>Kiểm tra chính tả tiếng Việt</h1>
 <label><input type="checkbox" id="names" checked> Bỏ qua tên riêng viết hoa giữa câu</label>
+<label>Mức phát hiện: <select id="sens"><option value="0">Chuẩn (ít báo oan)</option><option value="1" selected>Nhạy (khuyên dùng)</option><option value="2">Rất nhạy (bắt nhiều nhất)</option></select></label>
 <label><input type="checkbox" id="rep" checked> Bỏ qua từ lạ lặp lại từ 3 lần (có thể là tên riêng)</label>
 <label><input type="checkbox" id="gram" checked> Kiểm tra dấu câu, khoảng trắng, viết hoa đầu câu</label>
 <details><summary>Từ điển riêng (mỗi dòng một từ hoặc cụm từ)</summary><textarea id="dict" placeholder="Ea Drăng&#10;Krông Búk"></textarea><div>Cụm từ nhiều chữ cũng giúp gợi ý theo ngữ cảnh.</div></details>
+<details><summary>Học từ văn bản mẫu (tăng độ chính xác)</summary><div>Mở một văn bản <b>đã đúng chính tả</b> của đơn vị, rồi bấm nút bên dưới. Càng học nhiều văn bản đúng, add-in càng bắt lỗi chuẩn.</div><button id="learn">Học từ tài liệu đang mở</button><button id="forget">Xóa dữ liệu đã học</button><div id="lst"></div></details>
 <button id="scan">Kiểm tra lại</button><div class="row"><button id="next">Lỗi tiếp ›</button><button id="mark">Tô sáng lỗi</button><button id="unmark">Bỏ tô sáng</button></div>
 <div id="st">Đang chuẩn bị... Việc kiểm tra chạy hoàn toàn trên máy.</div>
 <div id="list"></div>
