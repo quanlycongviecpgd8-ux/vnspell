@@ -303,9 +303,39 @@ function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length)
       sa = soleNuc(a);
     return so && sa && so.p.nu !== sa.p.nu ? alt(a) : a;
   };
-  var pr = function pr(k) {
-    return (PAIRS.get(k) || 0) + (USER.get(k) || 0);
+  var CID = new Map(),
+    CPAIR = new Map(),
+    CUNI = new Map();
+  var cpair = function cpair(k) {
+    var i = k.indexOf(' ');
+    var a = CID.get(k.slice(0, i)),
+      b = CID.get(k.slice(i + 1));
+    return a === undefined || b === undefined ? 0 : CPAIR.get(a * 8281 + b) || 0;
   };
+  var pr = function pr(k) {
+    return (PAIRS.get(k) || 0) + (USER.get(k) || 0) + cpair(k);
+  };
+  var FOREIGN = new Set();
+  function setCorpus(c) {
+    CID = new Map();
+    CPAIR = new Map();
+    CUNI = new Map();
+    FOREIGN = new Set((c.foreign || '').split(' '));
+    var names = c.syl.split(' '),
+      U = c.uni;
+    names.forEach(function (n, i) {
+      CID.set(n, i);
+      CUNI.set(n, U.charCodeAt(i) - 35);
+    });
+    var P = c.pairs;
+    for (var i = 0; i + 4 < P.length + 0; i += 5) {
+      var a = P.charCodeAt(i) - 35,
+        _b = P.charCodeAt(i + 1) - 35,
+        x = P.charCodeAt(i + 2) - 35,
+        y = P.charCodeAt(i + 3) - 35;
+      CPAIR.set((a * 91 + _b) * 8281 + (x * 91 + y), P.charCodeAt(i + 4) - 35);
+    }
+  }
   var pc = function pc(a, b) {
     return Math.max(pr(a + ' ' + b), pr(alt(a) + ' ' + b), pr(a + ' ' + alt(b)), pr(alt(a) + ' ' + alt(b)));
   };
@@ -332,7 +362,7 @@ function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length)
   }
   var USERF = new Map();
   var freq = function freq(w) {
-    return (LEX ? LEX.syl[w] || LEX.syl[alt(w)] || 0 : 0) + (USERF.get(w) || 0);
+    return (LEX ? LEX.syl[w] || LEX.syl[alt(w)] || 0 : 0) + (USERF.get(w) || 0) + (CUNI.get(w) || CUNI.get(alt(w)) || 0);
   };
   function cands(b) {
     var c1 = new Set([b]);
@@ -405,14 +435,10 @@ function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length)
           var sc = Math.log2(f + 1) - 1.3 * dist(b, c) - (t === t0 ? 0 : 0.7),
             ctx = false;
           if (LEX) {
-            if (prev && pc(prev, w)) {
-              sc += 6;
-              ctx = true;
-            }
-            if (next && pc(w, next)) {
-              sc += 6;
-              ctx = true;
-            }
+            var sp = prev ? pc(prev, w) : 0,
+              sn = next ? pc(w, next) : 0;
+            sc += 1.2 * (sp + sn);
+            ctx = sp + sn > 0;
           }
           if (!res.has(w) || res.get(w).sc < sc) res.set(w, {
             w: w,
@@ -438,7 +464,16 @@ function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length)
   var ONS = [['s', 'x'], ['x', 's'], ['ch', 'tr'], ['tr', 'ch'], ['d', 'gi'], ['gi', 'd'], ['d', 'r'], ['r', 'd'], ['gi', 'r'], ['r', 'gi'], ['l', 'n'], ['n', 'l']];
   var ONS2 = [['th', 'r'], ['r', 'th'], ['th', 't'], ['t', 'th'], ['kh', 'k'], ['k', 'kh'], ['n', 'nh'], ['nh', 'n'], ['ng', 'n'], ['n', 'ng'], ['b', 'v'], ['v', 'b'], ['d', 'đ'], ['đ', 'd'], ['g', 'gh'], ['c', 'k'], ['k', 'c'], ['ph', 'p'], ['qu', 'c'], ['c', 'qu']];
   var CODA2 = [['c', 't'], ['t', 'c'], ['n', 'ng'], ['ng', 'n'], ['ch', 'nh'], ['nh', 'ch'], ['n', 'nh'], ['nh', 'n'], ['c', 'ch'], ['ch', 'c'], ['t', 'ch'], ['m', 'n'], ['n', 'm'], ['p', 'm'], ['m', 'p'], ['i', 'y'], ['u', 'o'], ['o', 'u']];
+  var VC = new Map();
   function variants(b, wide) {
+    var key = b + (wide ? '+' : '');
+    var hit = VC.get(key);
+    if (hit) return hit;
+    var res = variants0(b, wide);
+    VC.set(key, res);
+    return res;
+  }
+  function variants0(b, wide) {
     var base = new Set([b]);
     if (wide) {
       for (var _i4 = 0, _arr3 = _toConsumableArray(base); _i4 < _arr3.length; _i4++) {
@@ -665,7 +700,7 @@ function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length)
         var before = text.slice(0, t.s);
         if (before.trim() && !/[.!?:;]\s*$/.test(before)) return;
       }
-      if (EXT.has(canon(t.lw))) {
+      if (EXT.has(canon(t.lw)) || FOREIGN.has(t.lw)) {
         t.skip = true;
         return;
       }
@@ -746,15 +781,15 @@ function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length)
               _step13;
             try {
               for (_iterator13.s(); !(_step13 = _iterator13.n()).done;) {
-                var _b = _step13.value;
+                var _b2 = _step13.value;
                 var ea = eqA(a, ca),
-                  eb = eqA(_b, cb);
+                  eb = eqA(_b2, cb);
                 if (ea && eb) continue;
-                var c = pc(a, _b),
+                var c = pc(a, _b2),
                   ch = !ea + !eb;
                 if (c >= 3 && c >= 4 * (c0 + 1) && (!best || c - ch * 0.5 > best.sc)) best = {
                   a: ea ? ca : a,
-                  b: eb ? cb : _b,
+                  b: eb ? cb : _b2,
                   sc: c - ch * 0.5,
                   ch: ch
                 };
@@ -824,7 +859,7 @@ function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length)
             if (eqA(v, ct)) continue;
             var Sv = sup(v);
             if (!Sv) continue;
-            if (!narrow.has(v) && (Sv < 2 || lvl === 1 && Sv < 3 && f > 10)) continue;
+            if (!narrow.has(v) && Sv < 3) continue;
             var sc = Sv * 2 + Math.log2(freq(v) + 1) * 0.3 - dist(v, ct) * 0.4;
             if (!best || sc > best.sc) best = {
               v: v,
@@ -839,7 +874,8 @@ function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length)
         }
         var flag = false;
         if (best) {
-          if (lvl === 1) flag = f <= 20 && best.Sv >= 2 * S0 + 1 || best.Sv >= 3 * S0 + 3;else flag = f <= 150 ? best.Sv >= 2 * S0 + 1 : best.Sv >= 3 * S0 + 3;
+          var need = lvl === 1 ? o.need1 || 6 : o.need2 || 5;
+          flag = f <= 30 || lvl === 2 ? best.Sv >= S0 + need : best.Sv >= S0 + need + 3;
         }
         if (flag) {
           var sg = [restore(t.w, styleAs(best.v, ct))];
@@ -897,16 +933,25 @@ function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length)
   function resetLearn() {
     USERF.clear();
   }
+  function sylOf(tok) {
+    var lw = tok.normalize('NFC').toLowerCase(),
+      d = decompose(lw);
+    if (!d || d.n > 1) return null;
+    var p = parts(d.b);
+    return p && okStruct(p, d.t) ? canon(lw) : null;
+  }
   var api = {
     scan: scan,
     checkWord: checkWord,
     setLex: setLex,
+    setCorpus: setCorpus,
     setUser: setUser,
     learn: learn,
     resetLearn: resetLearn,
     canon: canon,
     tokens: tokens,
-    isLetter: isLetter
+    isLetter: isLetter,
+    sylOf: sylOf
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;else root.Speller = api;
 })(this);

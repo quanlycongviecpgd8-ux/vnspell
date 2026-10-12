@@ -83,6 +83,7 @@ var corpNote = function corpNote() {
 };
 Office.onReady(function () {
   if (window.VNLEX) Speller.setLex(window.VNLEX);
+  if (window.VNCORP) Speller.setCorpus(window.VNCORP);
   Speller.learn(getCorp());
   corpNote();
   try {
@@ -310,7 +311,7 @@ function _run() {
           _context7.n = 2;
           return Word.run(/*#__PURE__*/function () {
             var _ref3 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee6(ctx) {
-              var ps, o, per, cnt;
+              var ps, o, per, i, p, cnt;
               return _regenerator().w(function (_context6) {
                 while (1) switch (_context6.n) {
                   case 0:
@@ -325,15 +326,35 @@ function _run() {
                       grammar: $('gram').checked,
                       sens: parseInt($('sens').value, 10)
                     };
-                    per = ps.items.map(function (p, i) {
-                      return {
-                        i: i,
-                        text: p.text,
-                        found: Speller.scan(p.text, o).sort(function (a, b) {
-                          return a.start - b.start;
-                        })
-                      };
+                    per = [];
+                    i = 0;
+                  case 2:
+                    if (!(i < ps.items.length)) {
+                      _context6.n = 4;
+                      break;
+                    }
+                    p = ps.items[i];
+                    per.push({
+                      i: i,
+                      text: p.text,
+                      found: Speller.scan(p.text, o).sort(function (a, b) {
+                        return a.start - b.start;
+                      })
                     });
+                    if (!(i % 25 === 24)) {
+                      _context6.n = 3;
+                      break;
+                    }
+                    say('Đang quét... ' + Math.round(100 * i / ps.items.length) + '%');
+                    _context6.n = 3;
+                    return new Promise(function (r) {
+                      return setTimeout(r, 0);
+                    });
+                  case 3:
+                    i++;
+                    _context6.n = 2;
+                    break;
+                  case 4:
                     if ($('rep').checked) {
                       cnt = {};
                       per.forEach(function (x) {
@@ -356,7 +377,7 @@ function _run() {
                         });
                       });
                     });
-                  case 2:
+                  case 5:
                     return _context6.a(2);
                 }
               }, _callee6);
