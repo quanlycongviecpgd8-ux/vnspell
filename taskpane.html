@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="utf-8"><title>Kiểm tra chính tả tiếng Việt</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+<style>
+body{font:14px 'Segoe UI',sans-serif;margin:0;padding:12px;color:#222}
+h1{font-size:16px;margin:0 0 8px}label{display:block;margin:4px 0;font-size:13px}
+button{font:inherit;cursor:pointer;border:1px solid #bbb;background:#fff;border-radius:4px;padding:3px 8px;margin:2px 4px 2px 0}
+#scan{background:#0f6cbd;color:#fff;border-color:#0f6cbd;padding:6px 14px;margin:8px 0}
+.pri{background:#e8f1fb;border-color:#0f6cbd}
+.it{border:1px solid #ddd;border-radius:6px;padding:8px;margin:6px 0;cursor:pointer}
+.w{font-weight:600;color:#b00020}.ctx .w,.gram .w{color:#0f6cbd}textarea{width:100%;box-sizing:border-box;height:80px;font:inherit}details{margin:6px 0;font-size:13px}.cur{outline:2px solid #0f6cbd}.row{margin:6px 0}.m{font-size:12px;color:#666;margin-bottom:4px}#st{font-size:13px;color:#444}
+</style></head><body>
+<h1>Kiểm tra chính tả tiếng Việt</h1>
+<label><input type="checkbox" id="sel"> Chỉ kiểm tra đoạn đang chọn</label>
+<label><input type="checkbox" id="names" checked> Bỏ qua tên riêng viết hoa giữa câu</label>
+<label><input type="checkbox" id="rep" checked> Bỏ qua từ lạ lặp lại từ 3 lần (có thể là tên riêng)</label>
+<label><input type="checkbox" id="gram" checked> Kiểm tra dấu câu, khoảng trắng, viết hoa đầu câu</label>
+<details><summary>Từ điển riêng (mỗi dòng một từ hoặc cụm từ)</summary><textarea id="dict" placeholder="Ea Drăng&#10;Krông Búk"></textarea><div>Cụm từ nhiều chữ cũng giúp gợi ý theo ngữ cảnh.</div></details>
+<button id="scan">Kiểm tra lại</button><div class="row"><button id="next">Lỗi tiếp ›</button><button id="mark">Tô sáng lỗi</button><button id="unmark">Bỏ tô sáng</button></div>
+<div id="st">Đang chuẩn bị... Việc kiểm tra chạy hoàn toàn trên máy.</div>
+<div id="list"></div>
+<script src="lexicon.js"></script><script src="speller.js"></script><script src="taskpane.js"></script>
+</body></html>

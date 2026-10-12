@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0" xsi:type="TaskPaneApp">
+  <Id>7c1f3a52-5b1e-4d0a-9a53-2f4c8e6d1b90</Id>
+  <Version>1.0.0.0</Version>
+  <ProviderName>PGD8</ProviderName>
+  <DefaultLocale>vi-VN</DefaultLocale>
+  <DisplayName DefaultValue="Kiểm tra chính tả tiếng Việt"/>
+  <Description DefaultValue="Phát hiện âm tiết sai, sai vị trí dấu thanh và lặp từ. Chạy cục bộ."/>
+  <IconUrl DefaultValue="https://localhost:3000/icon-32.png"/>
+  <HighResolutionIconUrl DefaultValue="https://localhost:3000/icon-80.png"/>
+  <SupportUrl DefaultValue="https://localhost:3000/taskpane.html"/>
+  <Hosts><Host Name="Document"/></Hosts>
+  <DefaultSettings><SourceLocation DefaultValue="https://localhost:3000/taskpane.html"/></DefaultSettings>
+  <Permissions>ReadWriteDocument</Permissions>
+  <VersionOverrides xmlns="http://schemas.microsoft.com/office/taskpaneappversionoverrides" xsi:type="VersionOverridesV1_0">
+    <Hosts><Host xsi:type="Document"><DesktopFormFactor>
+      <ExtensionPoint xsi:type="PrimaryCommandSurface"><OfficeTab id="TabHome">
+        <Group id="VnSpell.Group">
+          <Label resid="Label"/>
+          <Icon><bt:Image size="16" resid="I16"/><bt:Image size="32" resid="I32"/><bt:Image size="80" resid="I80"/></Icon>
+          <Control xsi:type="Button" id="VnSpell.Open">
+            <Label resid="Label"/>
+            <Supertip><Title resid="Label"/><Description resid="Tip"/></Supertip>
+            <Icon><bt:Image size="16" resid="I16"/><bt:Image size="32" resid="I32"/><bt:Image size="80" resid="I80"/></Icon>
+            <Action xsi:type="ShowTaskpane"><TaskpaneId>VnSpellPane</TaskpaneId><SourceLocation resid="Url"/></Action>
+          </Control>
+        </Group>
+      </OfficeTab></ExtensionPoint>
+    </DesktopFormFactor></Host></Hosts>
+    <Resources>
+      <bt:Images>
+        <bt:Image id="I16" DefaultValue="https://localhost:3000/icon-16.png"/>
+        <bt:Image id="I32" DefaultValue="https://localhost:3000/icon-32.png"/>
+        <bt:Image id="I80" DefaultValue="https://localhost:3000/icon-80.png"/>
+      </bt:Images>
+      <bt:Urls><bt:Url id="Url" DefaultValue="https://localhost:3000/taskpane.html"/></bt:Urls>
+      <bt:ShortStrings><bt:String id="Label" DefaultValue="Kiểm tra chính tả"/></bt:ShortStrings>
+      <bt:LongStrings><bt:String id="Tip" DefaultValue="Mở khung và tự động kiểm tra chính tả tiếng Việt cho tài liệu"/></bt:LongStrings>
+    </Resources>
+  </VersionOverrides>
+</OfficeApp>
