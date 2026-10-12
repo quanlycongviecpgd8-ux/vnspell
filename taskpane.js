@@ -279,7 +279,7 @@ function _run() {
                 while (1) switch (_context6.n) {
                   case 0:
                     ps = ctx.document.body.paragraphs;
-                    ps.load('items/text');
+                    ps.load('text');
                     _context6.n = 1;
                     return ctx.sync();
                   case 1:
